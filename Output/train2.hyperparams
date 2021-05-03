@@ -1,0 +1,11 @@
+batch_size, 1000
+niters, 2000
+learning_rate, 1.000e-02
+corruption, 0.900
+gamma_size, 25
+z_size, 20
+decoder_size, 65
+Nflows, 3
+flow_hidden, 24
+f_nn_size, 12
+W_prior_scale, 0.0500
