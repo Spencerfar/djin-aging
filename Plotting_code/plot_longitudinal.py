@@ -5,13 +5,14 @@ from scipy.stats import sem
 from pandas import read_csv
 
 from torch.utils import data
-#from Utils.transformation import Transformation
 
 from pathlib import Path
 import sys
 file = Path(__file__). resolve()  
 package_root_directory = file.parents [1]  
 sys.path.append(str(package_root_directory))  
+
+from Utils.transformation import Transformation
 
 from DataLoader.dataset import Dataset
 from DataLoader.collate import custom_collate
@@ -53,6 +54,8 @@ test_generator = data.DataLoader(test_set, batch_size = num_test, shuffle = Fals
 mean_deficits = read_csv('../Data/mean_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
 std_deficits = read_csv('../Data/std_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
 
+psi = Transformation(mean_deficits[:-3], std_deficits[:-3], [6, 7, 15, 16, 23, 25, 26, 28])
+
 missing = [[] for i in range(N)]
 notmissing = [[] for i in range(N)]
 exact_missing = [[] for i in range(N)]
@@ -81,13 +84,12 @@ with torch.no_grad():
     sample_weight = data['weights'].numpy()
     sex_index = data['env'][:,12].long().numpy()
     
-    
     # transform
-    #mean[:,:,1:] = psi.untransform(mean[:,:,1:])
-    #linear[:,:,1:] = psi.untransform(linear[:,:,1:])
-    #y = psi.untransform(y)
-    #y = mask*y + (1-mask)*(-1000)
-    pop_avg_ = pop_avg_.numpy()#psi.untransform(pop_avg_.numpy())
+    mean[:,:,1:] = psi.untransform(mean[:,:,1:])
+    linear[:,:,1:] = psi.untransform(linear[:,:,1:])
+    y = psi.untransform(y)
+    y = mask*y + (1-mask)*(-1000)
+    pop_avg_ = psi.untransform(pop_avg_.numpy())
     
     record_times = []
     record_y= []
@@ -207,7 +209,7 @@ RMSE_sort_notmissing = RMSE_sort_notmissing[notmissing_index]
 #####MISSING
 fig,ax = plt.subplots(figsize=(6.2,5))
 
-deficits_small = np.array(['Gait speed', 'Dom Grip strength', 'Non-dom grip str', 'ADL score','IADL score', 'Chair rises','Leg raise','Full tandem stance', 'Self-rated health', 'Eyesight','Hearing', 'General functioning', 'Diastolic blood pressure', 'Systolic blood pressure', 'Pulse', 'Triglycerides','C-reactive protein','HDL cholesterol','LDL cholesterol','Glucose','IGF-1','Hemoglobin','Fibrinogen','Ferritin', 'Total cholesterol', r'White blood cell count', 'MCH', 'Glycated hemoglobin', 'Vitamin-D'])
+deficits_small = np.array(['Gait speed', 'Dom Grip strength', 'Non-dom grip str', 'ADL score','IADL score', 'Chair rises','Leg raise','Full tandem stance', 'Self-rated health', 'Eyesight','Hearing', 'Walking ability', 'Diastolic blood pressure', 'Systolic blood pressure', 'Pulse', 'Triglycerides','C-reactive protein','HDL cholesterol','LDL cholesterol','Glucose','IGF-1','Hemoglobin','Fibrinogen','Ferritin', 'Total cholesterol', r'White blood cell count', 'MCH', 'Glycated hemoglobin', 'Vitamin-D'])
 
 ax.errorbar(np.arange(N)+1, RMSE_sort_missing[:,1], marker = 'o',color = cm(0),markersize = 6, linestyle = '', label = 'DJIN model', zorder= 10000000)
 
@@ -245,7 +247,7 @@ plt.savefig('../Plots/Longitudinal_missing_RMSE_job_id%d_epoch%d.pdf'%(args.job_
 ##### NOT MISSING
 fig,ax = plt.subplots(figsize=(6.2,5))
 
-deficits_small = np.array(['Gait speed', 'Dom Grip strength', 'Non-dom grip str', 'ADL score','IADL score', 'Chair rises','Leg raise','Full tandem stance', 'Self-rated health', 'Eyesight','Hearing', 'General functioning', 'Diastolic blood pressure', 'Systolic blood pressure', 'Pulse', 'Triglycerides','C-reactive protein','HDL cholesterol','LDL cholesterol','Glucose','IGF-1','Hemoglobin','Fibrinogen','Ferritin', 'Total cholesterol', r'White blood cell count', 'MCH', 'Glycated hemoglobin', 'Vitamin-D'])
+deficits_small = np.array(['Gait speed', 'Dom Grip strength', 'Non-dom grip str', 'ADL score','IADL score', 'Chair rises','Leg raise','Full tandem stance', 'Self-rated health', 'Eyesight','Hearing', 'Walking ability', 'Diastolic blood pressure', 'Systolic blood pressure', 'Pulse', 'Triglycerides','C-reactive protein','HDL cholesterol','LDL cholesterol','Glucose','IGF-1','Hemoglobin','Fibrinogen','Ferritin', 'Total cholesterol', r'White blood cell count', 'MCH', 'Glycated hemoglobin', 'Vitamin-D'])
 
 ax.errorbar(np.arange(N)+1, RMSE_sort_notmissing[:,1], marker = 'o',color = cm(0),markersize = 6, linestyle = '', label = 'DJIN model', zorder= 10000000)
 

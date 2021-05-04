@@ -88,7 +88,6 @@ deficits_small = ['Gait', 'Grip str dom', 'Grip str ndom','ADL score', 'IADL sco
 mean_deficits = read_csv('../Data/mean_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
 std_deficits = read_csv('../Data/std_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
 
-
 deficits_units = np.array(['Gait speed (m/s)', 'Grip strength (kg)', 'Ndom grip str (kg)', 'ADL score','IADL score', '5 Chair rises (s)','Leg raise (s)','Full tandem (s)', 'SRH', 'Eyesight','Hearing', 'Walking ability score', 'Diastolic BP (mmHg)', 'Systolic BP (mmHg)', 'Pulse (bpm)', 'Trig (mmol/L)','C-RP (mg/L)','HDL (mmol/L)','LDL cholesterol (mmol/L)','Gluc (mmol/L)','IGF-1 (nmol/L)','Hgb (g/dL)','Fibrinogen (g/L)','Ferr (ng/mL)', 'Total cholesterol (mmol/L)', r'WBC ($10^{9}$ cells/L)', 'MCH (pg)', 'HgbA1c (%)', 'Vit-D (ng/mL)'])
 
 for n in range(N):
@@ -102,7 +101,7 @@ for n in range(N):
     mean_trans = mean[:,n+1]*std_deficits[n] + mean_deficits[n]
     std_trans = std[:,n+1]*std_deficits[n]
     
-    if n in [15, 16, 23, 25, 26, 28, 29]:
+    if n in [6, 7, 15, 16, 23, 25, 26, 28]:
         
         mean_trans = np.exp(mean_trans)
         std_trans = mean_trans*std_trans
@@ -240,7 +239,7 @@ ax = ax.flatten()
 
 mean_deficits = torch.Tensor(read_csv('../Data/mean_deficits.txt', index_col=0,sep=',',header=None).values[1:-3].flatten())
 std_deficits = torch.Tensor(read_csv('../Data/std_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:-3].flatten())
-psi = Transformation(mean_deficits, std_deficits, [15, 16, 23, 25, 26, 28])
+psi = Transformation(mean_deficits, std_deficits, [6, 7, 15, 16, 23, 25, 26, 28])
 
 
 X = psi.untransform(np.load('../Analysis_Data/generated_baseline_pop_job_id%d_epoch%d.npy'%(args.job_id, args.epoch))).numpy()
@@ -257,7 +256,7 @@ for i in range(N):
         hist, bin_edges = np.histogram(X[:,mask[:,i] > 0,i].flatten(), density = True, bins = bin_edges)
         ax[i].bar(bin_edges[:-1], hist, alpha = 0.5, label = 'Synthetic population', width = bin_edges[1] - bin_edges[0], color = cm(0))
             
-    elif i in [15, 16, 23, 25, 26, 28]:
+    elif i in [6, 7, 15, 16, 23, 25, 26, 28]:
             
         hist_obs, bin_edges = np.histogram(np.log(Y[:,i][mask[:,i] > 0]), density = True, bins = 30)
         bin_edges_pred = bin_edges * np.ones(bin_edges.shape)
