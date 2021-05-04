@@ -12,6 +12,8 @@ sys.path.append(str(package_root_directory))
 
 from DataLoader.dataset import Dataset
 from DataLoader.collate import custom_collate
+
+from Utils.transformation import Transformation
 from Utils.record import record
 
 import matplotlib.pyplot as plt
@@ -60,15 +62,25 @@ test_set = Dataset(test_name, N, pop=False, min_count = 10)
 num_test = test_set.__len__()
 test_generator = torch.utils.data.DataLoader(test_set, batch_size = num_test, shuffle = False, collate_fn = lambda x: custom_collate(x, pop_avg_, pop_avg_env, pop_std, 1.0))
 
+
+mean_deficits = read_csv('../Data/mean_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
+std_deficits = read_csv('../Data/std_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
+
+psi = Transformation(mean_deficits[:-3], std_deficits[:-3], [6, 7, 15, 16, 23, 25, 26, 28])
+
 with torch.no_grad():
 
     mean = np.load('../Analysis_Data/Mean_trajectories_job_id%d_epoch%d_DJIN.npy'%(args.job_id,args.epoch))
     linear = np.load('../Comparison_models/Results/Longitudinal_predictions_baseline_id21_rfmice_test.npy')
+
+    # transform models
+    mean[:,:,1:] = psi.untransform(mean[:,:,1:])
+    linear[:,:,1:] = psi.untransform(linear[:,:,1:])
+    pop_avg_ = psi.untransform(pop_avg_.numpy())
     
     mean_impute = np.zeros(mean.shape)
     
     for yi, years in enumerate([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]):
-        
         
         start = 0
         for data in test_generator:
@@ -80,6 +92,9 @@ with torch.no_grad():
         sample_weight = data['weights'].numpy()
         sex_index = data['env'][:,12].long().numpy()
         
+        # transform data
+        y = psi.untransform(y.numpy())
+        y = mask*y + (1-mask)*(-1000)
         
         record_times = []
         record_y = []
@@ -99,7 +114,7 @@ with torch.no_grad():
                 for t_rec in range(len(record_times[b])):
                     
                     t_index = np.digitize(record_times[b][t_rec], pop_avg_bins, right=True)
-                    pop_data_t = pop_avg_[sex_index[b], t_index].numpy()
+                    pop_data_t = pop_avg_[sex_index[b], t_index]
                     
                     while t < min(40, int(np.sum(~np.isnan(mean[b,:,1])))):
                         

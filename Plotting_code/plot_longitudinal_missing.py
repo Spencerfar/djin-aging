@@ -1,11 +1,11 @@
 import argparse
 import torch
 import numpy as np
-from scipy.stats import sem, spearmanr
+from scipy.stats import sem
 from pandas import read_csv
 
 from torch.utils import data
-#from Utils.Transformer import Transformer
+
 
 from pathlib import Path
 import sys
@@ -13,6 +13,7 @@ file = Path(__file__). resolve()
 package_root_directory = file.parents [1]  
 sys.path.append(str(package_root_directory))  
 
+from Utils.transformation import Transformation
 from Utils.record import record
 
 from DataLoader.dataset import Dataset
@@ -56,6 +57,11 @@ test_generator = data.DataLoader(test_set, batch_size = num_test, shuffle = Fals
 missing_percent = read_csv('../Analysis_Data/ELSA_missing_percent.csv').values[:,1]
 
 
+mean_deficits = read_csv('../Data/mean_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
+std_deficits = read_csv('../Data/std_deficits.txt', index_col=0,sep=',',header=None, names = ['variable']).values[1:].flatten()
+
+psi = Transformation(mean_deficits[:-3], std_deficits[:-3], [6, 7, 15, 16, 23, 25, 26, 28])
+
 missing = [[] for i in range(N)]
 notmissing = [[] for i in range(N)]
 exact_missing = [[] for i in range(N)]
@@ -86,11 +92,11 @@ with torch.no_grad():
     sex_index = data['env'][:,12].long().numpy()
 
     # transform
-    #mean[:,:,1:] = psi.untransform(mean[:,:,1:])
-    #linear[:,:,1:] = psi.untransform(linear[:,:,1:])
-    #y = psi.untransform(y)
-    #y = mask*y + (1-mask)*(-1000)
-    pop_avg_ = pop_avg_.numpy()#psi.untransform(pop_avg_.numpy())
+    mean[:,:,1:] = psi.untransform(mean[:,:,1:])
+    linear[:,:,1:] = psi.untransform(linear[:,:,1:])
+    y = psi.untransform(y)
+    y = mask*y + (1-mask)*(-1000)
+    pop_avg_ = psi.untransform(pop_avg_.numpy())
     
     record_times = []
     record_y= []
@@ -199,7 +205,7 @@ notmissing_index = RMSE_sort_notmissing[:,1].argsort()
 fig,ax = plt.subplots(figsize=(6.2,5))
 
 deficits_small = ['Gait', 'Grip str dom', 'Grip str ndom','ADL score', 'IADL score', 'Chair rise', 'Leg raise','Full tandem',
-                      'SRH', 'Eyesight','Hearing', 'Function', 'Dias BP', 'Sys BP', 'Pulse', 'Trig', 'CRP','HDL','LDL',
+                      'SRH', 'Eyesight','Hearing', 'Walking ability', 'Dias BP', 'Sys BP', 'Pulse', 'Trig', 'CRP','HDL','LDL',
                       'Gluc','IGF-1','HGB','Fib','Fer', 'Chol', 'WBC', 'MCH', 'hba1c', 'VIT-D']
 
 ax.errorbar(missing_percent, RMSE_sort_notmissing[:,1], marker = 'o', color = cm(0),markersize = 7, linestyle = '', label = 'DJIN model', zorder= 10000000)
