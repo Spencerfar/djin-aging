@@ -1,8 +1,13 @@
 import numpy as np
 import pandas as pd
+import argparse
 from numpy.random import RandomState
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.utils import resample
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--dataset', type=str, default = 'elsa')
+args = parser.parse_args()
 
 """
 Creates train, validation, and test sets
@@ -60,8 +65,18 @@ def create_cv():
 
     background = ['longill', 'limitact', 'effort', 'smkevr', 'smknow','height', 'bmi', 'mobility', 'country',
                   'alcohol', 'jointrep', 'fractures', 'sex', 'ethnicity']
-    
-    data = pd.read_csv('../Data/ELSA_cleaned.csv')
+
+    if args.dataset == 'elsa':
+        data = pd.read_csv('../Data/ELSA_cleaned.csv')
+        postfix = ''
+        print('Splitting ELSA dataset')
+    elif args.dataset == 'sample':
+        data = pd.read_csv('../Data/sample_data.csv')
+        postfix = '_sample'
+        print('Splitting sample dataset')
+    else:
+        print('unknown dataset')
+        return 0
     
     unique_indexes = data['id'].unique()
     data['censored'] = data['death age'].apply(lambda x: 0 if x > 0 else 1)
@@ -81,26 +96,26 @@ def create_cv():
         
         _, mean_deficits, std_deficits = create_data(np.arange(0,len(X[full_train_index,0]),dtype=int), data, deficits, medications, background, train=True)
         
-        mean_deficits.to_csv('../Data/mean_deficits.txt')
-        std_deficits.to_csv('../Data/std_deficits.txt')
+        mean_deficits.to_csv('../Data/mean_deficits%s.txt'%postfix)
+        std_deficits.to_csv('../Data/std_deficits%s.txt'%postfix)
         
         for j, (train_index, valid_index) in enumerate(skf_inner.split(X[full_train_index,0], X[full_train_index,1])):
             
             data_train = create_data(np.random.permutation(train_index), data, deficits, medications, background, mean_deficits = mean_deficits, std_deficits = std_deficits)
             
             #data_train.to_csv('Data/train_outer%d_inner%d.csv'%(i,j), index=False)
-            data_train.to_csv('../Data/train.csv', index=False)
+            data_train.to_csv('../Data/train%s.csv'%postfix, index=False)
             
             data_valid = create_data(np.random.permutation(valid_index), data, deficits, medications, background, mean_deficits = mean_deficits, std_deficits = std_deficits)
             
             #data_valid.to_csv('Data/valid_outer%d_inner%d.csv'%(i,j), index=False)
-            data_valid.to_csv('../Data/valid.csv', index=False) 
+            data_valid.to_csv('../Data/valid%s.csv'%postfix, index=False) 
             break # dont do full cv
         
         data_test = create_data(np.random.permutation(test_index), data, deficits, medications, background, mean_deficits = mean_deficits, std_deficits = std_deficits)
     
         #np.savetxt('Data/test_outer%d.txt'%i,data_test,fmt=s)
-        data_test.to_csv('../Data/test_outer%d.csv',index=False)
+        data_test.to_csv('../Data/test%s.csv'%postfix,index=False)
         break # dont do full cv
 
 if __name__ =="__main__":
