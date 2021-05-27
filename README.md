@@ -22,7 +22,7 @@ Running train_sample.py will train the model with some anonymized sample data fo
 Running split_data.py with command line arguments "--dataset sample" will generate train,validate,test sets for a sample dataset Data/sample_data.csv as well.
 
 # Citation
-Please cite the paper if you find this work useful (https://arxiv.org/abs/2105.03410).
+Please cite the preprint if you find this work useful (https://arxiv.org/abs/2105.03410).
 ```
 @misc{farrell2021interpretable,
       title={Interpretable machine learning for high-dimensional trajectories of aging health}, 
