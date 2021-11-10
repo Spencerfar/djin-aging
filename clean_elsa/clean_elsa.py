@@ -528,11 +528,8 @@ data.loc[(data['smkevr'] == 0.0) & (data['smknow'] != 1.0), 'smknow'] = 0.0
 
 """
 Now fix other aspects of the missing data. The multiple attempts of walking speed, grip strength, and blood pressure measurements are averaged to get a single value (and less noisy). 
-
 Walking speed is measured in seconds to walk 8 feet, so the speed is computed with a distance of 8ft = 2.438m.
-
 Hemoglobin is usually measured in g/dL, sometimes there are measurements in g/L. These are detected by selecting values that are too large to be in g/dL (>= 30 g/dL).
-
 Discrete variables are converted to within [0,1]. This is done for self-rated health, hearing difficulty, eyesight difficulty, and walking ability.
 """
 
@@ -619,10 +616,10 @@ for index, group in data.groupby('idauniq'):
             if w > 0:
                 #print(wave, index, data.loc[(waves[w-1],index),'age'])
                 if data.loc[(wave,index),'age'] <= data.loc[(waves[w-1],index),'age'] and data.loc[(wave,index),'age'] > 0 and data.loc[(waves[w-1],index),'age'] > 0:
-                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] + 2
+                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] + 2*(waves[w] - waves[w-1])
 
                 if data.loc[(waves[w-1],index),'age'] > 0 and data.loc[(wave,index),'age'] < 0:
-                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] + 2
+                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] + 2*(waves[w] - waves[w-1])
 
 
 data['new age'] = -1
@@ -633,10 +630,10 @@ for index, group in data.groupby('idauniq'):
             if w < len(waves)-1:
                 
                 if data.loc[(wave,index),'age'] >= data.loc[(waves[w-1],index),'age'] and data.loc[(wave,index),'age'] > 0 and data.loc[(waves[w-1],index),'age'] > 0:
-                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] - 2
+                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] - 2*np.abs(waves[w] - waves[w-1])
 
                 if data.loc[(waves[w-1],index),'age'] > 0 and data.loc[(wave,index),'age'] < 0:
-                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] - 2
+                    data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] - 2*np.abs(waves[w] - waves[w-1])
 
 
 for index, group in data.groupby('idauniq'):
@@ -644,7 +641,7 @@ for index, group in data.groupby('idauniq'):
         waves = group.xs(index,level=1).index.values
         for w, wave in enumerate(waves):
             if w == 0 and len(waves) > 1 and data.loc[(wave,index),'age'] < 0 and data.loc[(waves[w+1],index),'age'] > 0:
-                data.loc[(wave, index), 'age'] = data.loc[(waves[w+1],index),'age'] - 2
+                data.loc[(wave, index), 'age'] = data.loc[(waves[w+1],index),'age'] - 2*np.abs(waves[w] - waves[w-1])
 
 
 # Calculate death ages from date of birth (dob) and date of death (dod).
