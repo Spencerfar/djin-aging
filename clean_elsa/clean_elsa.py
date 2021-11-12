@@ -136,13 +136,13 @@ waves['wave8_nurse']['hba1c'] = waves['wave8_nurse']['hba1c'].apply(lambda x: (x
 # ADL and IADL scores were created in a separate file and input here for simplicity
 waves_FI = dict()
 for i in [1,2,3,4,6,7,8]:
-    waves_FI['wave'+str(i)] = pd.read_csv('../Data/ELSA_Frailty_cleaned_wave'+str(i)+'_new.csv')
+    waves_FI['wave'+str(i)] = pd.read_csv('../Data/ELSA_Frailty_cleaned_wave'+str(i)+'.csv')
     waves_FI['wave'+str(i)].fillna(-1.0, inplace=True)
 
 # Medication data was also done separately
 waves_med = dict()
 for i in range(9):
-    waves_med['wave'+str(i)] = pd.read_csv('../Data/ELSA_Med_cleaned_wave'+str(i)+'_new.csv')
+    waves_med['wave'+str(i)] = pd.read_csv('../Data/ELSA_Med_cleaned_wave'+str(i)+'.csv')
 
 # end of life data
 eol2 = read_sav(folder+"elsa_eol_w2_archive_v1.sav", usecols=['idauniq','EiDateY'])[0]
@@ -730,4 +730,4 @@ final_data['country'] = final_data['country'].apply(lambda x: -1000 if x < 0 els
 final_data['jointrep'] = final_data['jointrep'].apply(lambda x: -1000 if x < 0 else x)
 final_data['mobility'] = final_data['mobility'].apply(lambda x: -1000 if x < 0 else x)
 
-final_data[columns].to_csv('../Data/ELSA_cleaned_Nov11.csv',index=False)
+final_data[columns].to_csv('../Data/ELSA_cleaned.csv',index=False)
