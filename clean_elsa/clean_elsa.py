@@ -124,23 +124,7 @@ keys = ['wave0_1998','wave0_1999', 'wave0_2001', 'wave1', 'wave2', 'wave2_nurse'
 waves = dict()
 for i,f in enumerate(files):
     waves[keys[i]] = read_sav(folder+f, usecols=cols[i])[0]
-    
-# fixing birth years
-#Individuals of age 90+ have their actual age and birth year censored due to privacy reasons. We approximate this missing birthyear with, birthyear = (approximate year of interview) - 90.
-waves['wave0_1998']['dobyear'].replace(-7.0,1908.0, inplace=True)
-waves['wave0_1999']['dobyear'].replace(-7.0,1909.0, inplace=True)
-waves['wave0_2001']['dobyear'].replace(-7.0,1911.0, inplace=True)
-waves['wave1']['dhdobyr'].replace(-7.0,1912.0,inplace=True)
-waves['wave2']['dhdobyr'].replace(-7.0,1914.0,inplace=True)
-waves['wave3']['dhdobyr'].replace(-7.0,1916.0,inplace=True)
-waves['wave4_nurse']['dobyear'].replace(-7.0,1918.0,inplace=True)
-waves['wave5']['indobyr'].replace(-7.0,1920.0,inplace=True)
-waves['wave5']['indager'].replace(-7.0,90,inplace=True)
-waves['wave6']['Indobyr'].replace(-7.0,1922.0,inplace=True)
-waves['wave7']['Indobyr'].replace(-7.0,1924.0,inplace=True)
-waves['wave7']['indager'].replace(-7.0,90,inplace=True)
-waves['wave8']['indobyr'].replace(-7.0,1926.0,inplace=True)
-waves['wave8']['indager'].replace(-7.0,90,inplace=True)
+
 
 # some hba1c values are in mmol/mol instead of % values. Convert them all to %
 # this information is available in the documentation provided by ELSA
@@ -152,13 +136,13 @@ waves['wave8_nurse']['hba1c'] = waves['wave8_nurse']['hba1c'].apply(lambda x: (x
 # ADL and IADL scores were created in a separate file and input here for simplicity
 waves_FI = dict()
 for i in [1,2,3,4,6,7,8]:
-    waves_FI['wave'+str(i)] = pd.read_csv('../Data/ELSA_Frailty_cleaned_wave'+str(i)+'.csv')
+    waves_FI['wave'+str(i)] = pd.read_csv('../Data/ELSA_Frailty_cleaned_wave'+str(i)+'_new.csv')
     waves_FI['wave'+str(i)].fillna(-1.0, inplace=True)
 
 # Medication data was also done separately
 waves_med = dict()
 for i in range(9):
-    waves_med['wave'+str(i)] = pd.read_csv('../Data/ELSA_Med_cleaned_wave'+str(i)+'.csv')
+    waves_med['wave'+str(i)] = pd.read_csv('../Data/ELSA_Med_cleaned_wave'+str(i)+'_new.csv')
 
 # end of life data
 eol2 = read_sav(folder+"elsa_eol_w2_archive_v1.sav", usecols=['idauniq','EiDateY'])[0]
@@ -359,16 +343,13 @@ data = pd.concat(list(combined_waves.values()), keys=[0,1,2,3,4,5,6,7,8], sort=F
 data['dod'].fillna(-1,inplace=True)
 data['dod'] = data['dod'].astype(int)
 
-data = data[(data['dob'] != -9.0)] #drop refusal
-data = data[(data['dob'] != -8.0)] #drop don't know
-data['dob'].fillna(-1,inplace=True)
-data['dob'] = data['dob'].astype(int)
 
-data['age'].replace(99.0,90,inplace=True) #collapsed at 90
+data['age'].replace(-9.0,-1.0,inplace=True) #refuse
+data['age'].replace(-8.0,-1.0,inplace=True) #drop don't know 
+data['age'].replace(-7.0,-1.0,inplace=True) #drop don't know 
 data['age'].fillna(-1,inplace=True)
 data['age'] = data['age'].astype(int)
-data = data[(data['age'] != -9.0)] #drop refusal
-data = data[(data['age'] != -8.0)] #drop don't know
+data = data.loc[data['age'] < 90]
 
 data['walka'].fillna(-1.0,inplace=True)
 data['walkb'].fillna(-1.0,inplace=True)
@@ -607,10 +588,13 @@ data['height'] = data.groupby('idauniq')['height'].transform(lambda x: x.fillna(
 data['height'] = data.groupby('idauniq')['height'].transform(lambda x: x.fillna(method='bfill'))
 data['height'] = data['height'].fillna(-1)
 
+
+#print(data.xs(100001,level=1))
+#asdasdasdasd
 # Fill missing age values by using the previous age and the fact that waves are ~2 years apart.
 data['new age'] = -1
 for index, group in data.groupby('idauniq'):
-    if np.any(np.diff(group['age']) <= 0):
+    if np.any(np.diff(group['age']) <= 0) or np.any((group['age']) <= 0):
         waves = group.xs(index,level=1).index.values
         for w, wave in enumerate(waves):
             if w > 0:
@@ -624,10 +608,10 @@ for index, group in data.groupby('idauniq'):
 
 data['new age'] = -1
 for index, group in data.groupby('idauniq'):
-    if np.any(np.diff(group['age']) <= 0):
+    if np.any(np.diff(group['age']) <= 0) or np.any((group['age']) <= 0):
         waves = group.xs(index,level=1).index.values[::-1]
         for w, wave in enumerate(waves):
-            if w < len(waves)-1:
+            if w > 0:
                 
                 if data.loc[(wave,index),'age'] >= data.loc[(waves[w-1],index),'age'] and data.loc[(wave,index),'age'] > 0 and data.loc[(waves[w-1],index),'age'] > 0:
                     data.loc[(wave,index),'age'] = data.loc[(waves[w-1],index),'age'] - 2*np.abs(waves[w] - waves[w-1])
@@ -657,6 +641,11 @@ for index, group in data.groupby('idauniq'):
         data.loc[(wave,index),'death age'] = int(dod-dob) if dob>0 and dod>0 else -1
         data.loc[(wave,index),'status'] = int(1) if dob>0 and dod>0 else 0 # 1 if dead
 
+
+data = data.loc[data['age']>0]
+
+
+        
 # There could be issues with last age > death age/censoring age, due to the approximations with birth age and year of interview. If that occurs, set death age/censoring age to the maximum measured age. 
 for index, group in data.groupby('idauniq'):
     selected = data.xs(index,level=1).index.values
@@ -741,4 +730,4 @@ final_data['country'] = final_data['country'].apply(lambda x: -1000 if x < 0 els
 final_data['jointrep'] = final_data['jointrep'].apply(lambda x: -1000 if x < 0 else x)
 final_data['mobility'] = final_data['mobility'].apply(lambda x: -1000 if x < 0 else x)
 
-final_data[columns].to_csv('../Data/ELSA_cleaned.csv',index=False)
+final_data[columns].to_csv('../Data/ELSA_cleaned_Nov11.csv',index=False)
