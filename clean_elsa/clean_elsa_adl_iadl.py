@@ -86,7 +86,6 @@ waves.append(wave2)
 wave3, _ = pyreadstat.read_sav(folder+"wave_3_elsa_data_v4.sav",
                                         usecols = ['idauniq','dhager','mmwlka','mmwlkb',
                                                   'dhdobyr'] + adl[2] + iadl[2])
-wave3['dhdobyr'].replace(-7.0,1916.0,inplace=True)
 waves.append(wave3)
 
 
@@ -96,25 +95,18 @@ waves.append(wave4)
 
 wave5, _ = pyreadstat.read_sav(folder+"wave_5_elsa_data_v4.sav",
                                         usecols = ['idauniq','indager','indobyr','mmwlka','mmwlkb'] + adl[4])
-wave5['indobyr'].replace(-7.0,1920.0,inplace=True) 
-wave5['indager'].replace(-7.0,90,inplace=True)
 waves.append(wave5)
 
 wave6, _ = pyreadstat.read_sav(folder+"wave_6_elsa_data_v2.sav",
                                         usecols = ['idauniq','indager','mmwlka','mmwlkb','Indobyr'] + adl[5] + iadl[5])
-wave6['Indobyr'].replace(-7.0,1922.0,inplace=True) 
 waves.append(wave6)
 
 wave7, _ = pyreadstat.read_sav(folder+"wave_7_elsa_data.sav",
                                         usecols = ['idauniq','indager','MMWlkA','MMWlkB','Indobyr'] + adl[6] + iadl[6])
-wave7['Indobyr'].replace(-7.0,1924.0,inplace=True) 
-wave7['indager'].replace(-7.0,90,inplace=True)
 waves.append(wave7)
 
 wave8, _ = pyreadstat.read_sav(folder+"wave_8_elsa_data_eul_v2.sav",
                                         usecols = ['idauniq','indager','mmwlka','mmwlkb','indobyr'] + adl[7] + iadl[7])
-wave8['indobyr'].replace(-7.0,1926.0,inplace=True)
-wave8['indager'].replace(-7.0,90,inplace=True)
 waves.append(wave8)
 
 

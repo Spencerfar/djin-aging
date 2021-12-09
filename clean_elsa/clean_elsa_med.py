@@ -106,12 +106,10 @@ waves.append(wave6)
 
 wave7, _ = pyreadstat.read_sav(folder+"wave_7_elsa_data.sav",
                                         usecols = ['idauniq','indager'] + med[2+7])
-wave7['indager'].replace(-7.0,90,inplace=True)
 waves.append(wave7)
 
 wave8, _ = pyreadstat.read_sav(folder+"wave_8_elsa_data_eul_v2.sav",
                                         usecols = ['idauniq','indager'] + med[2+8])
-wave8['indager'].replace(-7.0,90,inplace=True)
 waves.append(wave8)
 
 # replace nans

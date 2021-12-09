@@ -349,7 +349,6 @@ data['age'].replace(-8.0,-1.0,inplace=True) #drop don't know
 data['age'].replace(-7.0,-1.0,inplace=True) #drop don't know 
 data['age'].fillna(-1,inplace=True)
 data['age'] = data['age'].astype(int)
-data = data.loc[data['age'] < 90]
 
 data['walka'].fillna(-1.0,inplace=True)
 data['walkb'].fillna(-1.0,inplace=True)
