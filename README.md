@@ -12,9 +12,16 @@ The model requires pytorch, numpy, scipy, and pandas to run. Creating datasets a
 Additionally, requires a GPU and pytorch installed with cuda for reasonable runtimes. Alternatively the device in train.py will be set to CPU if no GPU is available, but the model will run extremely slow.
 
 # Dataset
-This model is trained with the ELSA dataset, which can be accessed here https://www.elsa-project.ac.uk/accessing-elsa-data by registering. A synthetic dataset generated with this model is available at https://zenodo.org/record/4733386.
+This model is trained with the ELSA dataset, which can be accessed here https://www.elsa-project.ac.uk/accessing-elsa-data by registering. 
 
 After acquiring the dataset from https://www.elsa-project.ac.uk/accessing-elsa-data, the create_elsa_data.sh file in clean_elsa/ can be run to create the train, validation, and test data sets. (Requires setting the folder for the dataset in the individual files).
+
+# Synthetic dataset
+A synthetic dataset generated with this model is available at https://zenodo.org/record/4733386.
+
+<p align="center"> 
+<img src="synthetic_demo/synthetic_demo.png" width="700" height="525">
+</p>
 
 # Demo
 Running train_sample.py will train the model with some anonymized sample data for a small number of individuals (Data/train_sample.csv). After a 5-10 minutes of running for a few hundred epochs, running plot_sample.py with command line arguments "--epoch ###" will show the model fit on 4 individuals from the training set, which should roughly agree with the supplied plot sample_plot.pdf.  
