@@ -1,6 +1,10 @@
 # DJIN aging model
 The DJIN (Dynamic joint interpretable network) model of aging, from https://arxiv.org/abs/2105.03410. A diagram of this model is located in Model_Diagram/. The model using system of stochastic differential equations to model aging health trajectories and survival probability. SDEs are coupled by a network of interactions, allowing the coupling between health variabes to be interpreted with this interaction network. The model is trained with a variational bayesian approach.
 
+<p align="center"> 
+<img src="Model_Diagram.png" width="700" height="600">
+</p>
+
 # Documentation
 The DJIN model is located in the Model/ directory, additionally we have included 3 alternate models in Alternate_models/, as well as Elastic net linear comparison models in Comparison_models/. Hyperparameters used to train the models are available in Output/. The parameters for the trained models are available in Parameters/.
 
