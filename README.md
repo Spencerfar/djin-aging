@@ -24,7 +24,7 @@ After acquiring the dataset from https://www.elsa-project.ac.uk/accessing-elsa-d
 A synthetic dataset generated with this model is available at https://zenodo.org/record/4733386.
 
 <p align="center"> 
-<img src="synthetic_demo/synthetic_demo.png" width="700" height="600">
+<img src="synthetic_demo/synthetic_demo.png" width="700" height="700">
 </p>
 
 # Demo
