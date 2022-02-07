@@ -1,5 +1,5 @@
 # DJIN aging model
-The DJIN (Dynamic joint interpretable network) model of aging, from https://arxiv.org/abs/2105.03410. A diagram of this model is located in Model_Diagram/. The model using system of stochastic differential equations to model aging health trajectories and survival probability. SDEs are coupled by a network of interactions, allowing the coupling between health variabes to be interpreted with this interaction network. The model is trained with a variational bayesian approach.
+The DJIN (Dynamic joint interpretable network) model of aging, from https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009746. A diagram of this model is located in Model_Diagram/. The model using system of stochastic differential equations to model aging health trajectories and survival probability. SDEs are coupled by a network of interactions, allowing the coupling between health variabes to be interpreted with this interaction network. The model is trained with a variational bayesian approach.
 
 <p align="center"> 
 <img src="Model_Diagram.png" width="700" height="600">
@@ -33,14 +33,20 @@ Running train_sample.py will train the model with some anonymized sample data fo
 Running split_data.py with command line arguments "--dataset sample" will generate train,validate,test sets for a sample dataset Data/sample_data.csv as well.
 
 # Citation
-Please cite the preprint if you find this work useful (https://arxiv.org/abs/2105.03410).
+Please cite the paper if you find this work useful (https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009746).
 ```
-@misc{farrell2021interpretable,
-      title={Interpretable machine learning for high-dimensional trajectories of aging health}, 
-      author={Spencer Farrell and Arnold Mitnitski and Kenneth Rockwood and Andrew Rutenberg},
-      year={2021},
-      eprint={2105.03410},
-      archivePrefix={arXiv},
-      primaryClass={q-bio.QM}
+@article{Farrell2021,
+    doi = {10.1371/journal.pcbi.1009746},
+    author = {Farrell, Spencer AND Mitnitski, Arnold AND Rockwood, Kenneth AND Rutenberg, Andrew D.},
+    journal = {PLOS Computational Biology},
+    publisher = {Public Library of Science},
+    title = {Interpretable machine learning for high-dimensional trajectories of aging health},
+    year = {2022},
+    month = {01},
+    volume = {18},
+    url = {https://doi.org/10.1371/journal.pcbi.1009746},
+    pages = {1-30},
+    number = {1},
+
 }
 ```
